@@ -12,6 +12,7 @@
 		D50937BB289577A500BBAF1D /* Array+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D50937BA289577A500BBAF1D /* Array+Extension.swift */; };
 		D50937C42895816900BBAF1D /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D50937C32895816900BBAF1D /* Theme.swift */; };
 		D5519F2728A923C000FAC68D /* AspectVGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5519F2628A923C000FAC68D /* AspectVGrid.swift */; };
+		D5AE1D5028E0383200E948EE /* RoundedRectangleShadowButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5AE1D4F28E0383200E948EE /* RoundedRectangleShadowButton.swift */; };
 		D5B67D1A28AA2AF1005F8045 /* EmojiCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B67D1928AA2AF1005F8045 /* EmojiCardView.swift */; };
 		D5E5ED5E288D52F800052D5A /* MemorizeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5E5ED5D288D52F800052D5A /* MemorizeApp.swift */; };
 		D5E5ED60288D52F800052D5A /* EmojiMemoryGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5E5ED5F288D52F800052D5A /* EmojiMemoryGameView.swift */; };
@@ -26,6 +27,7 @@
 		D50937BA289577A500BBAF1D /* Array+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extension.swift"; sourceTree = "<group>"; };
 		D50937C32895816900BBAF1D /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		D5519F2628A923C000FAC68D /* AspectVGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AspectVGrid.swift; sourceTree = "<group>"; };
+		D5AE1D4F28E0383200E948EE /* RoundedRectangleShadowButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedRectangleShadowButton.swift; sourceTree = "<group>"; };
 		D5B67D1928AA2AF1005F8045 /* EmojiCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiCardView.swift; sourceTree = "<group>"; };
 		D5E5ED5A288D52F800052D5A /* Memorize.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Memorize.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D5E5ED5D288D52F800052D5A /* MemorizeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorizeApp.swift; sourceTree = "<group>"; };
@@ -80,6 +82,7 @@
 				D5B67D1928AA2AF1005F8045 /* EmojiCardView.swift */,
 				D5519F2628A923C000FAC68D /* AspectVGrid.swift */,
 				D5EB10F428D07D7900765DF9 /* Cadify.swift */,
+				D5AE1D4F28E0383200E948EE /* RoundedRectangleShadowButton.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -205,6 +208,7 @@
 				D5E5ED5E288D52F800052D5A /* MemorizeApp.swift in Sources */,
 				D50937B92894E31900BBAF1D /* EmojiMemoryGame.swift in Sources */,
 				D50937C42895816900BBAF1D /* Theme.swift in Sources */,
+				D5AE1D5028E0383200E948EE /* RoundedRectangleShadowButton.swift in Sources */,
 				D5B67D1A28AA2AF1005F8045 /* EmojiCardView.swift in Sources */,
 				D5EB10F528D07D7900765DF9 /* Cadify.swift in Sources */,
 			);
@@ -263,7 +267,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -317,7 +321,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -338,6 +342,7 @@
 				DEVELOPMENT_TEAM = Z7VQN24VBM;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.board-games";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -351,6 +356,9 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = byeongjokoo.Memorize;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -368,6 +376,7 @@
 				DEVELOPMENT_TEAM = Z7VQN24VBM;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.board-games";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -381,6 +390,9 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = byeongjokoo.Memorize;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;

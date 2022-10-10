@@ -80,7 +80,7 @@ final class EmojiMemoryGame: ObservableObject {
         theme = Theme()
     }
     
-    func shuffleCards() {
-        game.shuffleCards()
+    func flipAllCards() {
+        game.flipAllCards()
     }
 }

@@ -5,60 +5,79 @@
 //  Created by Byeongjo Koo on 2022/07/24.
 //
 
+import Combine
 import SwiftUI
 
 struct EmojiMemoryGameView: View {
     
     @ObservedObject var game: EmojiMemoryGame
-    
     @Namespace private var dealingNamespace
     @State private var dealt: Set<Int> = []
     
+    @State private var gameStartDate: Date?
+    @State private var gameStartAnimationStream: AnyCancellable?
+    @State private var gameStartAnimationTimeLeft = 0.0
+    
     var body: some View {
-        ZStack {
-            VStack {
-                if game.isFinished {
-                    Spacer()
-                    gameResult
-                } else {
-                    gameBody
+        GeometryReader { proxy in
+            ZStack {
+                VStack {
+                    if game.isFinished {
+                        gameResult(in: proxy.size)
+                    } else {
+                        gameBody
+                    }
                 }
-                Spacer()
-                bottomControls
-            }
-            VStack {
-                Spacer()
-                deckBody
+                VStack {
+                    Spacer(minLength: 0)
+                    if dealt.isEmpty {
+                        startDescription
+                    }
+                    deckBody
+                }
+                if 0 < gameStartAnimationTimeLeft, gameStartAnimationTimeLeft <= AnimationConstants.frontRevealDuration {
+                    RemainingCardsRevealTime(in: proxy.size)
+                }
             }
         }
         .foregroundColor(game.themeColor)
         .padding()
     }
     
+    private var isPlayable: Bool { gameStartAnimationStream == nil }
+    
     // MARK: SubView(s)
     
-    var gameBody: some View {
+    private var gameBody: some View {
         VStack {
-            ZStack {
-                title
-                HStack {
-                    Spacer()
-                    point
+            HStack {
+                if dealt.isEmpty == false {
+                    newGameButton
                 }
+                Spacer()
+                point
             }
             gameBoard
         }
     }
     
-    var title: some View {
-        Text(game.themeName).font(.largeTitle)
+    private var newGameButton: some View {
+        Button {
+            gameStartAnimationStream = nil
+            withAnimation {
+                dealt.removeAll()
+                game.createNewGame()
+            }
+        } label: {
+            Text(Texts.newGame)
+        }
     }
     
-    var point: some View {
+    private var point: some View {
         Text(Texts.pointDescription + game.points).font(.body)
     }
     
-    var gameBoard: some View {
+    private var gameBoard: some View {
         AspectVGrid(items: game.cards, aspectRatio: DrawingConstants.cardAspectRatio) { card in
             if isUndealt(card) || (card.isMatched && !card.isFaceUp) {
                 Color.clear
@@ -70,14 +89,24 @@ struct EmojiMemoryGameView: View {
                     .zIndex(zIndex(of: card))
                     .onTapGesture {
                         withAnimation {
-                            game.choose(card)
+                            if isPlayable {
+                                game.choose(card)
+                            }
                         }
                     }
             }
         }
     }
     
-    var deckBody: some View {
+    private var startDescription: some View {
+        VStack {
+            Text(Texts.startDescription)
+            Image(systemName: ImageAsset.arrowtriangleDownFill)
+                .padding(DrawingConstants.startDescriptionArrowPadding)
+        }
+    }
+    
+    private var deckBody: some View {
         ZStack {
             ForEach(game.cards.filter(isUndealt)) { card in
                 EmojiCardView(card: card)
@@ -88,50 +117,80 @@ struct EmojiMemoryGameView: View {
         }
         .frame(width: DrawingConstants.undealtWidth, height: DrawingConstants.undealtHeight)
         .onTapGesture {
-            for card in game.cards {
-                withAnimation(dealAnimation(for: card)) {
-                    deal(card)
+            gameStartDate = Date()
+            startAnimationStream()
+            game.cards.forEach { card in withAnimation(dealAnimation(for: card)) { deal(card) } }
+        }
+        .transition(.asymmetric(insertion: .scale, removal: .identity))
+    }
+    
+    private func RemainingCardsRevealTime(in size: CGSize) -> some View {
+        Text("\(Int(gameStartAnimationTimeLeft))")
+            .monospacedDigit()
+            .shadow(color: .white, radius: DrawingConstants.remainingCardsRevealTimeShadowRadius)
+            .font(.system(size: max(size.width, size.height) * DrawingConstants.remainingCardsRevealTimeFontRatio))
+            .opacity(DrawingConstants.remainingCardsRevealTimeOpacity)
+            .transition(.opacity)
+    }
+    
+    private func gameResult(in size: CGSize) -> some View {
+        VStack {
+            Spacer()
+            Text(Texts.gameResultPrefix + game.points + Texts.gameResultSuffix)
+                .multilineTextAlignment(.center)
+                .lineSpacing(Texts.gameResultLineSpacing)
+                .font(.title)
+            Spacer()
+            HStack {
+                RoundedRectangleShadowButton {
+                    Text(Texts.no).foregroundColor(.white)
+                }
+                action: {
+                    //TODO: Pop Back Action
+                }
+                .foregroundColor(.gray)
+                RoundedRectangleShadowButton {
+                    Text(Texts.yes).foregroundColor(.white)
+                }
+                action: {
+                    withAnimation {
+                        dealt.removeAll()
+                        game.createNewGame()
+                    }
                 }
             }
+            .frame(height: size.height * DrawingConstants.gameResultButtonHeightRatio)
         }
-    }
-    
-    var gameResult: some View {
-        Text(Texts.gameResultPrefix + game.points + Texts.gameResultSuffix)
-            .multilineTextAlignment(.center)
-            .font(.title)
-    }
-    
-    var bottomControls: some View {
-        HStack {
-            newGameButton
-            Spacer()
-            shuffleCardsButton
-        }
-    }
-    
-    var newGameButton: some View {
-        Button {
-            withAnimation {
-                dealt.removeAll()
-                game.createNewGame()
-            }
-        } label: {
-            Text(Texts.newGame)
-        }
-    }
-    
-    var shuffleCardsButton: some View {
-        Button {
-            withAnimation {
-                game.shuffleCards()
-            }
-        } label: {
-            Text(Texts.shuffle)
-        }
+        .foregroundColor(.black)
+        .transition(.asymmetric(insertion: .slide, removal: .opacity))
     }
     
     // MARK: Method(s)
+    
+    private func startAnimationStream() {
+        gameStartAnimationStream = Timer.publish(every: AnimationConstants.trackingSecond, on: .main, in: .default)
+            .autoconnect()
+            .receive(on: DispatchQueue.main)
+            .sink { date in
+                if let gameStartDate {
+                    let timePassed = Double(Int(date.timeIntervalSince(gameStartDate)))
+                    withAnimation {
+                        gameStartAnimationTimeLeft = AnimationConstants.dealAndRevealDuration - timePassed
+                    }
+                    if timePassed == AnimationConstants.totalDealDuration {
+                        withAnimation {
+                            game.flipAllCards()
+                        }
+                    }
+                    if timePassed == AnimationConstants.dealAndRevealDuration {
+                        withAnimation {
+                            game.flipAllCards()
+                        }
+                        gameStartAnimationStream = nil
+                    }
+                }
+            }
+    }
     
     private func deal(_ card: EmojiMemoryGame.Card) {
         dealt.insert(card.id)
@@ -160,11 +219,15 @@ extension EmojiMemoryGameView {
     
     private enum Texts {
         
-        static let pointDescription = "Points: "
-        static let gameResultPrefix = "Well Done !!\nYou got "
-        static let gameResultSuffix = " Point(s) !!"
-        static let newGame = "New Game"
-        static let shuffle = "Shuffle"
+        static let startDescription = "아래 카드를 누르면 게임이 시작됩니다."
+        static let pointDescription = "점수: "
+        static let gameResultPrefix = "축하합니다 !\n"
+        static let gameResultSuffix = "점을 얻었습니다.\n다시 도전해 보실래요 ?"
+        static let newGame = "다시하기"
+        static let yes = "네"
+        static let no = "아니요"
+        
+        static let gameResultLineSpacing: CGFloat = 10
     }
     
     private enum DrawingConstants {
@@ -172,14 +235,29 @@ extension EmojiMemoryGameView {
         static let cardAspectRatio: CGFloat = 2 / 3
         static let cardPadding: CGFloat = 4
         
+        static let startDescriptionArrowPadding: CGFloat = 2
         static let undealtHeight: CGFloat = 90
         static let undealtWidth = undealtHeight * cardAspectRatio
+        
+        static let gameResultButtonHeightRatio: CGFloat = 0.07
+        
+        static let remainingCardsRevealTimeShadowRadius: CGFloat = 5
+        static let remainingCardsRevealTimeFontRatio: CGFloat = 0.2
+        static let remainingCardsRevealTimeOpacity: CGFloat = 0.7
     }
     
     private enum AnimationConstants {
         
+        static let trackingSecond = 1.0
         static let dealDuration = 0.5
         static let totalDealDuration = 2.0
+        static let frontRevealDuration = 3.0
+        static let dealAndRevealDuration = totalDealDuration + frontRevealDuration
+    }
+    
+    private enum ImageAsset {
+        
+        static let arrowtriangleDownFill = "arrowtriangle.down.fill"
     }
 }
 

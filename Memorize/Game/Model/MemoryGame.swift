@@ -42,8 +42,8 @@ struct MemoryGame<CardContent: Equatable> {
         }
     }
     
-    mutating func shuffleCards() {
-        cardSet.shuffleCards()
+    mutating func flipAllCards() {
+        cardSet.flipAllCards()
     }
 }
 
@@ -78,6 +78,12 @@ extension MemoryGame {
         
         // MARK: Method(s)
         
+        mutating func flipAllCards() {
+            for index in cards.indices {
+                cards[index].isFaceUp.toggle()
+            }
+        }
+        
         mutating func choose(_ card: Card) -> MatchResult {
             guard let indexOfChosenCard = cards.index(matching: card),
                   cards[indexOfChosenCard].isFaceUp == false,
@@ -109,10 +115,6 @@ extension MemoryGame {
             cards[lhs].isSeen = true
             cards[rhs].isSeen = true
             return .noMatch
-        }
-        
-        mutating func shuffleCards() {
-            cards.shuffle()
         }
     }
 }
