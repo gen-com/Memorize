@@ -11,6 +11,7 @@ final class EmojiMemoryGame: ObservableObject {
     
     // MARK: Alias(es)
     
+    typealias MatchResult = MemoryGame<String>.MatchResult
     typealias Card = MemoryGame<String>.Card
     
     // MARK: Type Method(s)
@@ -72,11 +73,11 @@ final class EmojiMemoryGame: ObservableObject {
     
     // MARK: - Intent(s)
     
-    func choose(_ card: Card) {
+    func choose(_ card: Card) -> MatchResult {
         game.choose(card)
     }
     
-    func createNewGame() {
+    func restartGame() {
         theme = Theme()
     }
     

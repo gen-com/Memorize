@@ -17,6 +17,9 @@ struct EmojiMemoryGameView: View {
     @State private var gameStartDate: Date?
     @State private var gameStartAnimationStream: AnyCancellable?
     @State private var gameStartAnimationTimeLeft = 0.0
+    @State private var currentMatchingStatus = EmojiMemoryGame.MatchResult.none
+    
+    private var hapticFeedbackGenerator = UINotificationFeedbackGenerator()
     
     var body: some View {
         GeometryReader { proxy in
@@ -44,33 +47,49 @@ struct EmojiMemoryGameView: View {
         .padding()
     }
     
+    init(game: EmojiMemoryGame) {
+        self.game = game
+    }
+    
     private var isPlayable: Bool { gameStartAnimationStream == nil }
     
     // MARK: SubView(s)
     
     private var gameBody: some View {
         VStack {
-            HStack {
-                if dealt.isEmpty == false {
-                    newGameButton
+            ZStack {
+                matchingFeedback
+                HStack {
+                    if dealt.isEmpty == false && isPlayable {
+                        restartButton
+                    }
+                    Spacer()
+                    point
                 }
-                Spacer()
-                point
             }
             gameBoard
         }
     }
     
-    private var newGameButton: some View {
+    private var restartButton: some View {
         Button {
-            gameStartAnimationStream = nil
-            withAnimation {
-                dealt.removeAll()
-                game.createNewGame()
-            }
+            restart()
         } label: {
             Text(Texts.newGame)
         }
+    }
+    
+    private var matchingFeedback: some View {
+        let result: String
+        switch currentMatchingStatus {
+        case .match:
+            result = Texts.correct
+        case .noMatch:
+            result = Texts.wrong
+        case .none:
+            result = ""
+        }
+        return Text(result).font(.title).transition(.scale)
     }
     
     private var point: some View {
@@ -90,7 +109,15 @@ struct EmojiMemoryGameView: View {
                     .onTapGesture {
                         withAnimation {
                             if isPlayable {
-                                game.choose(card)
+                                currentMatchingStatus = game.choose(card)
+                                switch currentMatchingStatus {
+                                case .match:
+                                    hapticFeedbackGenerator.notificationOccurred(.success)
+                                case .noMatch:
+                                    hapticFeedbackGenerator.notificationOccurred(.error)
+                                case .none: break
+                                }
+                                hapticFeedbackGenerator.prepare()
                             }
                         }
                     }
@@ -153,10 +180,7 @@ struct EmojiMemoryGameView: View {
                     Text(Texts.yes).foregroundColor(.white)
                 }
                 action: {
-                    withAnimation {
-                        dealt.removeAll()
-                        game.createNewGame()
-                    }
+                    restart()
                 }
             }
             .frame(height: size.height * DrawingConstants.gameResultButtonHeightRatio)
@@ -211,6 +235,15 @@ struct EmojiMemoryGameView: View {
     private func zIndex(of card: EmojiMemoryGame.Card) -> Double {
         -Double(game.cards.index(matching: card) ?? 0)
     }
+    
+    private func restart() {
+        gameStartAnimationStream = nil
+        currentMatchingStatus = .none
+        withAnimation {
+            dealt.removeAll()
+            game.restartGame()
+        }
+    }
 }
 
 // MARK: - Constant(s)
@@ -226,6 +259,9 @@ extension EmojiMemoryGameView {
         static let newGame = "다시하기"
         static let yes = "네"
         static let no = "아니요"
+        
+        static let correct = "✅"
+        static let wrong = "🚫"
         
         static let gameResultLineSpacing: CGFloat = 10
     }

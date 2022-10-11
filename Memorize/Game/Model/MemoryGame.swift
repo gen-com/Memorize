@@ -30,16 +30,16 @@ struct MemoryGame<CardContent: Equatable> {
     
     // MARK: Choose Card
     
-    mutating func choose(_ card: Card) {
-        switch cardSet.choose(card) {
+    mutating func choose(_ card: Card) -> MatchResult {
+        let matchResult = cardSet.choose(card)
+        switch matchResult {
         case .match:
             points += 2
-        case .noMatchWithOneSeen:
+        case .noMatch:
             points -= 1
-        case .noMatchWithBothSeen:
-            points -= 2
-        case .noMatch: break
+        case .none: break
         }
+        return matchResult
     }
     
     mutating func flipAllCards() {
@@ -50,6 +50,13 @@ struct MemoryGame<CardContent: Equatable> {
 // MARK: - Card Set
 
 extension MemoryGame {
+    
+    enum MatchResult {
+        
+        case match
+        case noMatch
+        case none
+    }
     
     struct CardSet {
         
@@ -88,14 +95,14 @@ extension MemoryGame {
             guard let indexOfChosenCard = cards.index(matching: card),
                   cards[indexOfChosenCard].isFaceUp == false,
                   cards[indexOfChosenCard].isMatched == false
-            else { return .noMatch }
+            else { return .none }
             if let indexOfPotentialFaceUpCard = indexOfOneAndOnlyFaceUpCard {
                 cards[indexOfChosenCard].isFaceUp = true
                 return match(for: indexOfChosenCard, and: indexOfPotentialFaceUpCard)
             } else {
                 indexOfOneAndOnlyFaceUpCard = indexOfChosenCard
             }
-            return .noMatch
+            return .none
         }
         
         private mutating func match(for lhs: Int, and rhs: Int) -> MatchResult {
@@ -103,17 +110,7 @@ extension MemoryGame {
                 cards[lhs].isMatched = true
                 cards[rhs].isMatched = true
                 return .match
-            } else if cards[lhs].isSeen && cards[rhs].isSeen {
-                return .noMatchWithBothSeen
-            } else if cards[lhs].isSeen {
-                cards[rhs].isSeen = true
-                return .noMatchWithOneSeen
-            } else if  cards[rhs].isSeen {
-                cards[lhs].isSeen = true
-                return .noMatchWithOneSeen
             }
-            cards[lhs].isSeen = true
-            cards[rhs].isSeen = true
             return .noMatch
         }
     }
@@ -123,19 +120,10 @@ extension MemoryGame {
 
 extension MemoryGame.CardSet {
     
-    enum MatchResult {
-        
-        case match
-        case noMatch
-        case noMatchWithOneSeen
-        case noMatchWithBothSeen
-    }
-    
     struct Card: Identifiable {
         
         var isFaceUp = false
         var isMatched = false
-        var isSeen = false
         let content: CardContent
         let id: Int
     }
