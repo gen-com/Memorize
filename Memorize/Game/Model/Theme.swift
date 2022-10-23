@@ -23,31 +23,31 @@ struct Theme {
         case .vehicle:
             emojiList = Emoji.vehicleList
             color = .red
-            numberOfPairsOfCardsToShow = 4
+            numberOfPairsOfCardsToShow = 6
         case .halloween:
             emojiList = Emoji.halloweenList
             color = .orange
-            numberOfPairsOfCardsToShow = 6
+            numberOfPairsOfCardsToShow = 4
         case .animal:
             emojiList = Emoji.animalList
             color = .yellow
-            numberOfPairsOfCardsToShow = 8
+            numberOfPairsOfCardsToShow = 4
         case .nature:
             emojiList = Emoji.natureList
             color = .green
-            numberOfPairsOfCardsToShow = 10
+            numberOfPairsOfCardsToShow = 4
         case .sports:
             emojiList = Emoji.sportsList
             color = .blue
-            numberOfPairsOfCardsToShow = 12
+            numberOfPairsOfCardsToShow = 4
         case .flag:
             emojiList = Emoji.flagList
             color = .indigo
-            numberOfPairsOfCardsToShow = 14
+            numberOfPairsOfCardsToShow = 4
         case .face:
             emojiList = Emoji.faceList
             color = .purple
-            numberOfPairsOfCardsToShow = 16
+            numberOfPairsOfCardsToShow = 4
         }
         self.emojiList = emojiList.shuffled()
     }
@@ -91,8 +91,8 @@ extension Theme {
         ]
         static let natureList = [
             "🌵", "🌲", "🌳", "🌴", "🪵", "🌱", "🌿", "☘️",
-            "🍀", "🎍", "🪴", "🎋", "🍃", "🍂", "🍁", "🪺",
-            "🪹", "🍄", "🪸", "🪨",
+            "🎍", "🪴", "🎋", "🍃", "🍂", "🍁", "🪺", "🍄",
+            "🪸", "🪨",
         ]
         static let sportsList = [
             "⚽️", "🏀", "🏈", "⚾️", "🥎", "🎾", "🏐", "🏉",

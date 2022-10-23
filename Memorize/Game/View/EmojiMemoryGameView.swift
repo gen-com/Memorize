@@ -11,13 +11,6 @@ import SwiftUI
 struct EmojiMemoryGameView: View {
     
     @ObservedObject var game: EmojiMemoryGame
-    @Namespace private var dealingNamespace
-    @State private var dealt: Set<Int> = []
-    
-    @State private var gameStartDate: Date?
-    @State private var gameStartAnimationStream: AnyCancellable?
-    @State private var gameStartAnimationTimeLeft = 0.0
-    @State private var currentMatchingStatus = EmojiMemoryGame.MatchResult.none
     
     private var hapticFeedbackGenerator = UINotificationFeedbackGenerator()
     
@@ -28,18 +21,19 @@ struct EmojiMemoryGameView: View {
                     if game.isFinished {
                         gameResult(in: proxy.size)
                     } else {
-                        gameBody
+                        informationView(in: proxy.size)
+                        gameBoard
                     }
                 }
                 VStack {
                     Spacer(minLength: 0)
                     if dealt.isEmpty {
-                        startDescription
+                        playDescriptionView
                     }
                     deckBody
                 }
                 if 0 < gameStartAnimationTimeLeft, gameStartAnimationTimeLeft <= AnimationConstants.frontRevealDuration {
-                    RemainingCardsRevealTime(in: proxy.size)
+                    CardsRevealRemainingTime(in: proxy.size)
                 }
             }
         }
@@ -51,23 +45,30 @@ struct EmojiMemoryGameView: View {
         self.game = game
     }
     
-    private var isPlayable: Bool { gameStartAnimationStream == nil }
+    // MARK: Subview(s) for information
     
-    // MARK: SubView(s)
+    @State private var bonusRemaining: TimeInterval = 0
+    @State private var currentMatchingStatus = EmojiMemoryGame.MatchResult.none
     
-    private var gameBody: some View {
-        VStack {
-            ZStack {
-                matchingFeedback
-                HStack {
-                    if dealt.isEmpty == false && isPlayable {
-                        restartButton
-                    }
-                    Spacer()
-                    point
+    private var isPlayable: Bool {
+        dealt.isEmpty == false && gameStartAnimationStream == nil
+    }
+    
+    private func informationView(in size: CGSize) -> some View {
+        ZStack {
+            HStack {
+                if isPlayable {
+                    bonusTimeView(in: MetricConstants.bonusTimeViewHeight)
                 }
+                matchingFeedbackView
             }
-            gameBoard
+            HStack {
+                if isPlayable {
+                    restartButton
+                }
+                Spacer()
+                pointView
+            }
         }
     }
     
@@ -79,9 +80,24 @@ struct EmojiMemoryGameView: View {
         }
     }
     
-    private var matchingFeedback: some View {
+    private func bonusTimeView(in height: CGFloat) -> some View {
+        let endAngle = Angle(degreesFromTwelve: (1 - bonusRemaining / game.bonusTimeLimit) * 360)
+        return Pie(startAngle: Angle(degreesFromTwelve: 0), endAngle: endAngle)
+            .frame(width: height, height: height)
+            .onAppear {
+                game.setPlayStartDate()
+                bonusRemaining = game.bonusTimeLimit
+                withAnimation(.linear(duration: bonusRemaining)) {
+                    bonusRemaining = 0
+                }
+            }
+    }
+    
+    private var matchingFeedbackView: some View {
         let result: String
         switch currentMatchingStatus {
+        case .matchWithinBonusTime:
+            result = Texts.bonus
         case .match:
             result = Texts.correct
         case .noMatch:
@@ -92,9 +108,11 @@ struct EmojiMemoryGameView: View {
         return Text(result).font(.title).transition(.scale)
     }
     
-    private var point: some View {
+    private var pointView: some View {
         Text(Texts.pointDescription + game.points).font(.body)
     }
+    
+    // MARK: Subview(s) for game
     
     private var gameBoard: some View {
         AspectVGrid(items: game.cards, aspectRatio: DrawingConstants.cardAspectRatio) { card in
@@ -111,21 +129,21 @@ struct EmojiMemoryGameView: View {
                             if isPlayable {
                                 currentMatchingStatus = game.choose(card)
                                 switch currentMatchingStatus {
-                                case .match:
+                                case .match, .matchWithinBonusTime:
                                     hapticFeedbackGenerator.notificationOccurred(.success)
                                 case .noMatch:
                                     hapticFeedbackGenerator.notificationOccurred(.error)
                                 case .none: break
                                 }
-                                hapticFeedbackGenerator.prepare()
                             }
                         }
+                        hapticFeedbackGenerator.prepare()
                     }
             }
         }
     }
     
-    private var startDescription: some View {
+    private var playDescriptionView: some View {
         VStack {
             Text(Texts.startDescription)
             Image(systemName: ImageAsset.arrowtriangleDownFill)
@@ -144,14 +162,17 @@ struct EmojiMemoryGameView: View {
         }
         .frame(width: DrawingConstants.undealtWidth, height: DrawingConstants.undealtHeight)
         .onTapGesture {
-            gameStartDate = Date()
             startAnimationStream()
-            game.cards.forEach { card in withAnimation(dealAnimation(for: card)) { deal(card) } }
+            game.cards.forEach { card in
+                withAnimation(dealAnimation(for: card)) {
+                    deal(card)
+                }
+            }
         }
         .transition(.asymmetric(insertion: .scale, removal: .identity))
     }
     
-    private func RemainingCardsRevealTime(in size: CGSize) -> some View {
+    private func CardsRevealRemainingTime(in size: CGSize) -> some View {
         Text("\(Int(gameStartAnimationTimeLeft))")
             .monospacedDigit()
             .shadow(color: .white, radius: DrawingConstants.remainingCardsRevealTimeShadowRadius)
@@ -189,15 +210,20 @@ struct EmojiMemoryGameView: View {
         .transition(.asymmetric(insertion: .slide, removal: .opacity))
     }
     
-    // MARK: Method(s)
+    // MARK: Game start animation
+    
+    @State private var gameStartAnimationDate: Date?
+    @State private var gameStartAnimationStream: AnyCancellable?
+    @State private var gameStartAnimationTimeLeft = 0.0
     
     private func startAnimationStream() {
+        gameStartAnimationDate = Date()
         gameStartAnimationStream = Timer.publish(every: AnimationConstants.trackingSecond, on: .main, in: .default)
             .autoconnect()
             .receive(on: DispatchQueue.main)
             .sink { date in
-                if let gameStartDate {
-                    let timePassed = Double(Int(date.timeIntervalSince(gameStartDate)))
+                if let gameStartAnimationDate {
+                    let timePassed = Double(Int(date.timeIntervalSince(gameStartAnimationDate)))
                     withAnimation {
                         gameStartAnimationTimeLeft = AnimationConstants.dealAndRevealDuration - timePassed
                     }
@@ -215,6 +241,11 @@ struct EmojiMemoryGameView: View {
                 }
             }
     }
+    
+    // MARK: Dealing cards
+    
+    @Namespace private var dealingNamespace
+    @State private var dealt: Set<Int> = []
     
     private func deal(_ card: EmojiMemoryGame.Card) {
         dealt.insert(card.id)
@@ -239,6 +270,7 @@ struct EmojiMemoryGameView: View {
     private func restart() {
         gameStartAnimationStream = nil
         currentMatchingStatus = .none
+        bonusRemaining = 0
         withAnimation {
             dealt.removeAll()
             game.restartGame()
@@ -260,6 +292,7 @@ extension EmojiMemoryGameView {
         static let yes = "네"
         static let no = "아니요"
         
+        static let bonus = "🌟"
         static let correct = "✅"
         static let wrong = "🚫"
         
@@ -280,6 +313,11 @@ extension EmojiMemoryGameView {
         static let remainingCardsRevealTimeShadowRadius: CGFloat = 5
         static let remainingCardsRevealTimeFontRatio: CGFloat = 0.2
         static let remainingCardsRevealTimeOpacity: CGFloat = 0.7
+    }
+    
+    private enum MetricConstants {
+        
+        static let bonusTimeViewHeight: CGFloat = 30
     }
     
     private enum AnimationConstants {

@@ -14,6 +14,8 @@
 		D5519F2728A923C000FAC68D /* AspectVGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5519F2628A923C000FAC68D /* AspectVGrid.swift */; };
 		D5AE1D5028E0383200E948EE /* RoundedRectangleShadowButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5AE1D4F28E0383200E948EE /* RoundedRectangleShadowButton.swift */; };
 		D5B67D1A28AA2AF1005F8045 /* EmojiCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B67D1928AA2AF1005F8045 /* EmojiCardView.swift */; };
+		D5CE432A28F6E4EC00C9E9BE /* Pie.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5CE432928F6E4EC00C9E9BE /* Pie.swift */; };
+		D5CE432C28F6EA0400C9E9BE /* Angle+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5CE432B28F6EA0400C9E9BE /* Angle+Extension.swift */; };
 		D5E5ED5E288D52F800052D5A /* MemorizeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5E5ED5D288D52F800052D5A /* MemorizeApp.swift */; };
 		D5E5ED60288D52F800052D5A /* EmojiMemoryGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5E5ED5F288D52F800052D5A /* EmojiMemoryGameView.swift */; };
 		D5E5ED62288D52FA00052D5A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D5E5ED61288D52FA00052D5A /* Assets.xcassets */; };
@@ -29,6 +31,8 @@
 		D5519F2628A923C000FAC68D /* AspectVGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AspectVGrid.swift; sourceTree = "<group>"; };
 		D5AE1D4F28E0383200E948EE /* RoundedRectangleShadowButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedRectangleShadowButton.swift; sourceTree = "<group>"; };
 		D5B67D1928AA2AF1005F8045 /* EmojiCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiCardView.swift; sourceTree = "<group>"; };
+		D5CE432928F6E4EC00C9E9BE /* Pie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pie.swift; sourceTree = "<group>"; };
+		D5CE432B28F6EA0400C9E9BE /* Angle+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Angle+Extension.swift"; sourceTree = "<group>"; };
 		D5E5ED5A288D52F800052D5A /* Memorize.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Memorize.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D5E5ED5D288D52F800052D5A /* MemorizeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemorizeApp.swift; sourceTree = "<group>"; };
 		D5E5ED5F288D52F800052D5A /* EmojiMemoryGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiMemoryGameView.swift; sourceTree = "<group>"; };
@@ -52,6 +56,7 @@
 			isa = PBXGroup;
 			children = (
 				D50937BA289577A500BBAF1D /* Array+Extension.swift */,
+				D5CE432B28F6EA0400C9E9BE /* Angle+Extension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -95,6 +100,14 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		D5CE432828F6E4D700C9E9BE /* Shape */ = {
+			isa = PBXGroup;
+			children = (
+				D5CE432928F6E4EC00C9E9BE /* Pie.swift */,
+			);
+			path = Shape;
+			sourceTree = "<group>";
+		};
 		D5E5ED51288D52F800052D5A = {
 			isa = PBXGroup;
 			children = (
@@ -117,6 +130,7 @@
 				D5E5ED5D288D52F800052D5A /* MemorizeApp.swift */,
 				D50937BC289577AB00BBAF1D /* Extensions */,
 				D50937BE2895792100BBAF1D /* Game */,
+				D5CE432828F6E4D700C9E9BE /* Shape */,
 				D5E5ED61288D52FA00052D5A /* Assets.xcassets */,
 				D5E5ED63288D52FA00052D5A /* Preview Content */,
 			);
@@ -209,8 +223,10 @@
 				D50937B92894E31900BBAF1D /* EmojiMemoryGame.swift in Sources */,
 				D50937C42895816900BBAF1D /* Theme.swift in Sources */,
 				D5AE1D5028E0383200E948EE /* RoundedRectangleShadowButton.swift in Sources */,
+				D5CE432A28F6E4EC00C9E9BE /* Pie.swift in Sources */,
 				D5B67D1A28AA2AF1005F8045 /* EmojiCardView.swift in Sources */,
 				D5EB10F528D07D7900765DF9 /* Cadify.swift in Sources */,
+				D5CE432C28F6EA0400C9E9BE /* Angle+Extension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -62,6 +62,9 @@ final class EmojiMemoryGame: ObservableObject {
     var points: String {
         "\(game.points)"
     }
+    var bonusTimeLimit: TimeInterval {
+        game.bonusTimeLimit
+    }
     
     // MARK: Initializer(s)
     
@@ -75,6 +78,10 @@ final class EmojiMemoryGame: ObservableObject {
     
     func choose(_ card: Card) -> MatchResult {
         game.choose(card)
+    }
+    
+    func setPlayStartDate() {
+        game.setPlayStartDate()
     }
     
     func restartGame() {

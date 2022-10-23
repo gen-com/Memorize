@@ -17,22 +17,42 @@ struct MemoryGame<CardContent: Equatable> {
     
     private(set) var cardSet: CardSet
     private(set) var points: Int
-    var isFinished: Bool {
-        cardSet.isAllCardsMatched
-    }
+    let bonusTimeLimit: TimeInterval
+    private var playStartDate: Date?
     
     // MARK: Initializer(s)
     
     init(numberOfPairsOfCards: Int, createCardContent: (Int) -> CardContent) {
         cardSet = CardSet(numberOfPairsOfCards: numberOfPairsOfCards, createCardContent: createCardContent)
         points = 0
+        bonusTimeLimit = 10
     }
     
-    // MARK: Choose Card
+    // MARK: Computed Property(ies)
+    
+    var isFinished: Bool { cardSet.isAllCardsMatched }
+    
+    var didMatchWithinBonusTime: Bool {
+        if let playStartDate, Date().timeIntervalSince(playStartDate) <= bonusTimeLimit {
+            return true
+        }
+        return false
+    }
+    
+    // MARK: Logic Method(s)
+    
+    mutating func setPlayStartDate() {
+        playStartDate = Date()
+    }
     
     mutating func choose(_ card: Card) -> MatchResult {
-        let matchResult = cardSet.choose(card)
+        var matchResult = cardSet.choose(card)
+        if matchResult == .match, didMatchWithinBonusTime {
+            matchResult = .matchWithinBonusTime
+        }
         switch matchResult {
+        case .matchWithinBonusTime:
+            points += 3
         case .match:
             points += 2
         case .noMatch:
@@ -47,13 +67,14 @@ struct MemoryGame<CardContent: Equatable> {
     }
 }
 
-// MARK: - Card Set
+// MARK: - Match Result & Card Set
 
 extension MemoryGame {
     
     enum MatchResult {
         
         case match
+        case matchWithinBonusTime
         case noMatch
         case none
     }
@@ -116,7 +137,7 @@ extension MemoryGame {
     }
 }
 
-// MARK: - Match Result & Card
+// MARK: - Card
 
 extension MemoryGame.CardSet {
     
